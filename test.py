@@ -1,5 +1,11 @@
 import re
 
+# shims for Python 2
+import sys
+if sys.version_info[0] == 2:
+    input = raw_input
+
+
 class Tokens():
     def __init__(self, s):
         self.tokens = tokenize(s)
@@ -107,7 +113,7 @@ def gen_python_code(tree):
            '/':'__import__("operator").div'}
     if isinstance(tree, list):
         operator, operand1, operand2 = tree
-        return 'reduce(%s, [%s, %s])' % (ops[operator], gen_python_code(operand1), gen_python_code(operand2))
+        return '__import__("functools").reduce(%s, [%s, %s])' % (ops[operator], gen_python_code(operand1), gen_python_code(operand2))
     else:
         return tree
 
@@ -123,14 +129,14 @@ if __name__ == '__main__':
     import pprint
     doctest.testmod()
     s = '1+4*3-(2*4-3+(1+1))*8'
-    print s
-    print tokenize('1+4*3-(2*4-3+(1+1))*8')
-    print expression(tokenize('1+4*3-(2*4-3+(1+1))*8'))
+    print(s)
+    print(tokenize('1+4*3-(2*4-3+(1+1))*8'))
+    print(expression(tokenize('1+4*3-(2*4-3+(1+1))*8')))
     pprint.pprint(expression(tokenize('1+4*3-(2*4-3+(1+1))*8')))
-    raw_input('type an expression!')
-    s = gen_python_code(expression(tokenize('1+4*3-(2*4-3+(1+1))*8'))[0])
-    print s
-    print eval(s)
-    s = gen_short_python_code(expression(tokenize('1+4*3-(2*4-3+(1+1))*8'))[0])
-    print s
-    print eval(s)
+    s = input('type an expression: ')
+    code = gen_python_code(expression(tokenize(s))[0])
+    print(code)
+    print(eval(code))
+    code = gen_short_python_code(expression(tokenize(s))[0])
+    print(code)
+    print(eval(code))
